@@ -1,0 +1,28 @@
+name: lvm
+label: "LVM"
+description: "Logical Volume Manager: volume groups, logical volumes, physical volumes."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: storage
+detect: "command -v lvs"
+checks:
+  - name: physical_volumes
+    label: "Physical Volumes"
+    type: command
+    command: "pvs 2>&1"
+
+  - name: volume_groups
+    label: "Volume Groups"
+    type: command
+    command: "vgs 2>&1"
+
+  - name: logical_volumes
+    label: "Logical Volumes"
+    type: command
+    command: "lvs 2>&1"
+
+  - name: lvm_config
+    label: "LVM Config"
+    type: command
+    command: "lvs -o lv_name,vg_name,lv_size,lv_attr,pool_lv --noheadings 2>&1"

@@ -1,0 +1,28 @@
+name: gpu
+label: "GPU (NVIDIA)"
+description: "NVIDIA GPU info, driver version, and utilization."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: hardware
+detect: "command -v nvidia-smi"
+checks:
+  - name: gpu_info
+    label: "GPU Info"
+    type: command
+    command: "nvidia-smi 2>&1"
+
+  - name: driver_version
+    label: "Driver Version"
+    type: command
+    command: "nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>&1"
+
+  - name: gpu_utilization
+    label: "GPU Utilization"
+    type: command
+    command: "nvidia-smi --query-gpu=name,utilization.gpu,utilization.memory,memory.total,memory.used,temperature.gpu --format=csv 2>&1"
+
+  - name: gpu_processes
+    label: "GPU Processes"
+    type: command
+    command: "nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv 2>&1"

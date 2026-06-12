@@ -1,0 +1,35 @@
+name: limits
+label: "Limits"
+description: "Resource limits: ulimits, limits.conf, file descriptor usage, systemd defaults."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: shell_ulimits
+    label: "Shell Ulimits"
+    type: command
+    command: "ulimit -a"
+
+  - name: limits_conf
+    label: "limits.conf Entries"
+    type: command
+    command: "cat /etc/security/limits.conf /etc/security/limits.d/*.conf 2>/dev/null | grep -vE '^#|^$' | grep . || echo 'No explicit limits configured'"
+
+  - name: fd_usage
+    label: "File Descriptor Usage"
+    type: python
+    function: "collect_fd_usage"
+    severity:
+      - pattern: "HIGH:"
+        status: warning
+
+  - name: pid1_limits
+    label: "PID 1 Limits"
+    type: file
+    path: "/proc/1/limits"
+
+  - name: systemd_default_limits
+    label: "Systemd Default Limits"
+    type: command
+    command: "systemctl show -p DefaultLimitNOFILE -p DefaultLimitNPROC -p DefaultTasksMax 2>/dev/null | grep . || echo 'systemd not available'"

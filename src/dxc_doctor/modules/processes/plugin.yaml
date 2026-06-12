@@ -1,0 +1,32 @@
+name: processes
+label: "Processes"
+description: "Top CPU/memory consumers, zombie and blocked (D-state) processes."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: top_cpu_processes
+    label: "Top CPU Processes"
+    type: command
+    command: "ps aux --sort=-%cpu 2>/dev/null | head -15 || ps aux | head -15"
+
+  - name: top_mem_processes
+    label: "Top Memory Processes"
+    type: command
+    command: "ps aux --sort=-%mem 2>/dev/null | head -15 || ps aux | head -15"
+
+  - name: total_processes
+    label: "Process Count"
+    type: command
+    command: "echo \"Processes: $(ps -e --no-headers 2>/dev/null | wc -l)  Threads: $(ps -eL --no-headers 2>/dev/null | wc -l)\""
+
+  - name: process_states
+    label: "Zombie / Blocked Processes"
+    type: python
+    function: "collect_process_states"
+    severity:
+      - pattern: "BLOCKED:"
+        status: warning
+      - pattern: "ZOMBIE:"
+        status: warning

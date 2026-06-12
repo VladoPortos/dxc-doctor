@@ -1,0 +1,18 @@
+name: ansible
+label: "Ansible"
+description: "Ansible version and available collections."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: software
+detect: "command -v ansible"
+checks:
+  - name: ansible_version
+    label: "Ansible Version"
+    type: command
+    command: "ansible --version 2>&1"
+
+  - name: ansible_collections
+    label: "Ansible Collections"
+    type: command
+    command: "ansible-galaxy collection list 2>&1 || echo 'No collections found'"

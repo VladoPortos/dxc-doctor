@@ -1,0 +1,43 @@
+name: systemd
+label: "Systemd"
+description: "Service status, failed units, timers, and boot time."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+detect: "command -v systemctl"
+checks:
+  - name: failed_units
+    label: "Failed Units"
+    type: command
+    command: "systemctl --failed --no-pager 2>&1"
+    severity:
+      - pattern: "0 loaded units listed"
+        status: ok
+      - pattern: "loaded failed"
+        status: warning
+
+  - name: running_services
+    label: "Running Services"
+    type: command
+    command: "systemctl list-units --type=service --state=running --no-pager 2>&1"
+
+  - name: enabled_services
+    label: "Enabled Services"
+    type: command
+    command: "systemctl list-unit-files --type=service --state=enabled --no-pager 2>&1"
+
+  - name: timers
+    label: "Active Timers"
+    type: command
+    command: "systemctl list-timers --no-pager 2>&1"
+
+  - name: boot_time
+    label: "Boot Time"
+    type: command
+    command: "systemd-analyze 2>&1 || echo 'systemd-analyze not available'"
+
+  - name: default_target
+    label: "Default Target"
+    type: command
+    command: "systemctl get-default 2>&1"

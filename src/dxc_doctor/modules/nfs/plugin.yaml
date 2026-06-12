@@ -1,0 +1,28 @@
+name: nfs
+label: "NFS"
+description: "NFS mounts, exports, and RPC info."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: storage
+detect: "command -v showmount || command -v nfsstat"
+checks:
+  - name: nfs_mounts
+    label: "NFS Mounts"
+    type: command
+    command: "mount -t nfs,nfs4 2>&1 || echo 'No NFS mounts'"
+
+  - name: nfs_exports
+    label: "NFS Exports"
+    type: command
+    command: "cat /etc/exports 2>/dev/null || echo 'No exports file'"
+
+  - name: nfs_stats
+    label: "NFS Statistics"
+    type: command
+    command: "nfsstat -c 2>&1 || echo 'nfsstat not available'"
+
+  - name: rpc_info
+    label: "RPC Info"
+    type: command
+    command: "rpcinfo -p 2>&1 || echo 'rpcinfo not available'"

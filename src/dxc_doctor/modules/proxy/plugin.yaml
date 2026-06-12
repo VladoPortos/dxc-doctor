@@ -1,0 +1,32 @@
+name: proxy
+label: "Proxy"
+description: "Proxy configuration for system, package managers, and git."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: network
+checks:
+  - name: env_proxy
+    label: "Environment Proxy"
+    type: python
+    function: "collect_env_proxy"
+
+  - name: apt_proxy
+    label: "APT Proxy"
+    type: command
+    command: "grep -r proxy /etc/apt/ 2>/dev/null || echo 'No apt proxy config'"
+
+  - name: yum_proxy
+    label: "YUM/DNF Proxy"
+    type: command
+    command: "grep -i proxy /etc/yum.conf /etc/dnf/dnf.conf 2>/dev/null || echo 'No yum/dnf proxy config'"
+
+  - name: git_proxy
+    label: "Git Proxy"
+    type: command
+    command: "command -v git >/dev/null 2>&1 && { git config --global --get http.proxy; git config --global --get https.proxy; } 2>/dev/null | grep . || echo 'No git proxy configured'"
+
+  - name: proxy_connectivity
+    label: "Proxy Connectivity"
+    type: python
+    function: "check_proxy_connectivity"

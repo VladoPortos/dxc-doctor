@@ -1,0 +1,33 @@
+name: timesync
+label: "Time Sync"
+description: "NTP/chrony status, time synchronization, and clock drift."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+detect: "command -v timedatectl || command -v chronyc || command -v ntpq"
+checks:
+  - name: timedatectl
+    label: "Timedatectl Status"
+    type: command
+    command: "timedatectl status 2>/dev/null || echo 'timedatectl not available'"
+
+  - name: chrony_status
+    label: "Chrony Tracking"
+    type: command
+    command: "chronyc tracking 2>/dev/null || echo 'chrony not available'"
+
+  - name: chrony_sources
+    label: "Chrony Sources"
+    type: command
+    command: "chronyc sources 2>/dev/null || echo 'chrony not available'"
+
+  - name: ntp_peers
+    label: "NTP Peers"
+    type: command
+    command: "ntpq -p 2>/dev/null || echo 'ntpq not available'"
+
+  - name: clock_drift
+    label: "Clock Drift"
+    type: python
+    function: "check_clock_drift"

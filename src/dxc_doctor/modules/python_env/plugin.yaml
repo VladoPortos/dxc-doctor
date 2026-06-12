@@ -1,0 +1,33 @@
+name: python_env
+label: "Python"
+description: "Python version, pip packages, and virtual environments."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: software
+detect: "command -v python3"
+checks:
+  - name: python_version
+    label: "Python Version"
+    type: command
+    command: "python3 --version 2>&1"
+
+  - name: pip_version
+    label: "Pip Version"
+    type: command
+    command: "python3 -m pip --version 2>&1 || echo 'pip not available'"
+
+  - name: pip_packages
+    label: "Pip Packages"
+    type: command
+    command: "python3 -m pip list 2>/dev/null | head -50 || echo 'pip not available'"
+
+  - name: python_path
+    label: "Python Path"
+    type: command
+    command: "python3 -c 'import sys; print(\"\\n\".join(sys.path))' 2>&1"
+
+  - name: virtualenvs
+    label: "Virtual Environments"
+    type: command
+    command: "ls -d /home/*/venv /home/*/.venv /home/*/env /opt/venv* 2>/dev/null || echo 'No virtualenvs found in common locations'"

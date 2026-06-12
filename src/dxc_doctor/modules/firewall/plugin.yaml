@@ -1,0 +1,33 @@
+name: firewall
+label: "Firewall"
+description: "Firewalld zones, ufw status, and nftables ruleset."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: network
+detect: "command -v firewall-cmd || command -v ufw || command -v nft"
+checks:
+  - name: firewalld_state
+    label: "Firewalld State"
+    type: command
+    command: "firewall-cmd --state 2>&1 || echo 'firewalld not running or not installed'"
+
+  - name: firewalld_active_zones
+    label: "Firewalld Active Zones"
+    type: command
+    command: "firewall-cmd --get-active-zones 2>/dev/null | grep . || echo 'No active zones (or firewalld not running)'"
+
+  - name: firewalld_default_zone
+    label: "Firewalld Default Zone Rules"
+    type: command
+    command: "firewall-cmd --list-all 2>/dev/null | grep . || echo 'firewalld not available'"
+
+  - name: ufw_status
+    label: "UFW Status"
+    type: command
+    command: "ufw status verbose 2>&1 || echo 'ufw not available (or requires root)'"
+
+  - name: nftables_ruleset
+    label: "Nftables Ruleset"
+    type: command
+    command: "nft list ruleset 2>/dev/null | head -120 | grep . || echo 'nftables not available or empty ruleset'"

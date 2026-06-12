@@ -1,0 +1,43 @@
+name: performance
+label: "Performance"
+description: "Load, pressure stall information (PSI), vmstat/iostat snapshots."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: load_average
+    label: "Load Average"
+    type: command
+    command: "uptime; echo \"CPUs: $(nproc 2>/dev/null || echo '?')\""
+
+  - name: pressure_stall
+    label: "Pressure Stall Info (PSI)"
+    type: python
+    function: "collect_pressure"
+    severity:
+      - pattern: "ELEVATED:"
+        status: warning
+
+  - name: vmstat_snapshot
+    label: "Vmstat Snapshot"
+    type: command
+    timeout: 15
+    command: "vmstat 1 3 2>/dev/null || cat /proc/loadavg"
+
+  - name: iostat_snapshot
+    label: "Iostat Snapshot"
+    type: command
+    timeout: 15
+    command: "iostat -x 1 2 2>/dev/null | tail -40 | grep . || echo 'iostat not available (install sysstat)'"
+
+  - name: top_snapshot
+    label: "Top Snapshot"
+    type: command
+    timeout: 15
+    command: "top -bn1 2>/dev/null | head -25 | grep . || echo 'top not available'"
+
+  - name: context_switches
+    label: "Context Switches / Procs"
+    type: command
+    command: "grep -E '^(ctxt|processes|procs_running|procs_blocked)' /proc/stat"

@@ -1,0 +1,28 @@
+name: java
+label: "Java"
+description: "JDK version, JAVA_HOME, and running JVMs."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: software
+detect: "command -v java"
+checks:
+  - name: java_version
+    label: "Java Version"
+    type: command
+    command: "java -version 2>&1"
+
+  - name: java_home
+    label: "JAVA_HOME"
+    type: command
+    command: "echo ${JAVA_HOME:-'(not set)'}"
+
+  - name: java_alternatives
+    label: "Java Alternatives"
+    type: command
+    command: "update-alternatives --display java 2>/dev/null || alternatives --display java 2>/dev/null || echo 'No alternatives configured'"
+
+  - name: running_jvms
+    label: "Running JVMs"
+    type: command
+    command: "jps -lv 2>/dev/null || ps aux | grep '[j]ava' || echo 'No running JVMs'"

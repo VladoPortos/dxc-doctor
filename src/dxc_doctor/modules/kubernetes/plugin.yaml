@@ -1,0 +1,48 @@
+name: kubernetes
+label: "Kubernetes"
+description: "Cluster info, node status, pods, and resource usage."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: containers
+detect: "kubectl cluster-info --request-timeout=3s >/dev/null 2>&1"
+checks:
+  - name: cluster_info
+    label: "Cluster Info"
+    type: command
+    command: "kubectl cluster-info 2>&1"
+
+  - name: node_status
+    label: "Node Status"
+    type: command
+    command: "kubectl get nodes -o wide 2>&1"
+
+  - name: all_pods
+    label: "All Pods"
+    type: command
+    command: "kubectl get pods --all-namespaces -o wide 2>&1"
+
+  - name: failing_pods
+    label: "Failing Pods"
+    type: command
+    command: "kubectl get pods --all-namespaces --field-selector 'status.phase!=Running,status.phase!=Succeeded' 2>&1 || echo 'None'"
+
+  - name: resource_usage
+    label: "Resource Usage"
+    type: command
+    command: "kubectl top nodes 2>&1 || echo 'Metrics server not available'"
+
+  - name: namespaces
+    label: "Namespaces"
+    type: command
+    command: "kubectl get namespaces 2>&1"
+
+  - name: services
+    label: "Services"
+    type: command
+    command: "kubectl get svc --all-namespaces 2>&1"
+
+  - name: kube_version
+    label: "Kubernetes Version"
+    type: command
+    command: "kubectl version 2>&1"

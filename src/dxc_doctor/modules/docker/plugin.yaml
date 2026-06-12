@@ -1,0 +1,38 @@
+name: docker
+label: "Docker"
+description: "Collect Docker daemon info, images, and running containers."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: containers
+detect: "docker info >/dev/null 2>&1"
+checks:
+  - name: docker_version
+    label: "Docker Version"
+    type: command
+    command: "docker version --format '{{.Server.Version}}' 2>&1"
+
+  - name: docker_info
+    label: "Docker Info"
+    type: command
+    command: "docker info 2>&1"
+
+  - name: running_containers
+    label: "Running Containers"
+    type: command
+    command: "docker ps --format 'table {{.Names}}\\t{{.Image}}\\t{{.Status}}' 2>&1"
+
+  - name: docker_images
+    label: "Docker Images"
+    type: command
+    command: "docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}' 2>&1"
+
+  - name: docker_disk_usage
+    label: "Docker Disk Usage"
+    type: command
+    command: "docker system df 2>&1"
+
+  - name: daemon_config
+    label: "Daemon Config"
+    type: file
+    path: "/etc/docker/daemon.json"

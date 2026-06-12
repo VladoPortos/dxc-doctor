@@ -1,0 +1,34 @@
+name: crypto_policy
+label: "Crypto Policy"
+description: "System crypto policy, FIPS mode, OpenSSL configuration, SSH ciphers."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: security
+detect: "command -v update-crypto-policies || test -f /proc/sys/crypto/fips_enabled || command -v openssl"
+checks:
+  - name: system_crypto_policy
+    label: "System Crypto Policy"
+    type: command
+    command: "update-crypto-policies --show 2>/dev/null | grep . || echo 'crypto-policies not available (non-RHEL distro?)'"
+
+  - name: fips_mode
+    label: "FIPS Mode"
+    type: command
+    command: |-
+      if [ -f /proc/sys/crypto/fips_enabled ]; then
+        v=$(cat /proc/sys/crypto/fips_enabled)
+        if [ "$v" = "1" ]; then echo 'FIPS mode: ENABLED'; else echo 'FIPS mode: disabled'; fi
+      else
+        echo 'FIPS sysctl not present'
+      fi
+
+  - name: openssl_info
+    label: "OpenSSL Info"
+    type: command
+    command: "openssl version -a 2>&1 || echo 'openssl not available'"
+
+  - name: ssh_crypto
+    label: "SSH Ciphers / MACs / Kex"
+    type: command
+    command: "sshd -T 2>/dev/null | grep -E '^(ciphers|macs|kexalgorithms)' | grep . || echo 'sshd -T not available (requires root or sshd missing)'"

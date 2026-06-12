@@ -1,0 +1,50 @@
+name: disk_health
+label: "Disk Health"
+description: "SMART health, NVMe status, mdraid, and multipath (requires root)."
+version: "1.0"
+author: "DXC Team"
+requires_root: true
+category: storage
+detect: "command -v smartctl || command -v mdadm || command -v multipath || test -r /proc/mdstat"
+checks:
+  - name: block_devices
+    label: "Block Devices"
+    type: command
+    command: "lsblk -o NAME,SIZE,TYPE,ROTA,MODEL,SERIAL,MOUNTPOINT 2>&1"
+
+  - name: smart_health
+    label: "SMART Health"
+    type: python
+    function: "collect_smart_health"
+    timeout: 120
+    severity:
+      - pattern: "ATTENTION:"
+        status: error
+
+  - name: nvme_health
+    label: "NVMe Health"
+    type: command
+    timeout: 60
+    command: |-
+      if command -v nvme >/dev/null 2>&1; then
+        found=0
+        for d in /dev/nvme[0-9]; do
+          [ -e "$d" ] || continue
+          found=1
+          echo "== $d =="
+          nvme smart-log "$d" 2>&1 | head -15
+        done
+        [ "$found" = 1 ] || echo 'No NVMe devices found'
+      else
+        echo 'nvme-cli not installed'
+      fi
+
+  - name: mdraid_status
+    label: "MD RAID Status"
+    type: command
+    command: "if [ -r /proc/mdstat ]; then cat /proc/mdstat; mdadm --detail --scan 2>/dev/null; true; else echo 'No mdraid (/proc/mdstat missing)'; fi"
+
+  - name: multipath_status
+    label: "Multipath Status"
+    type: command
+    command: "multipath -ll 2>/dev/null | grep . || echo 'multipath not available or no multipath devices'"

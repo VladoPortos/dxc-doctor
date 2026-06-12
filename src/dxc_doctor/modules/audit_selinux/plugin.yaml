@@ -1,0 +1,36 @@
+name: audit_selinux
+label: "Audit / SELinux"
+description: "Audit daemon status, audit rules, recent AVC denials, SELinux modules (requires root)."
+version: "1.0"
+author: "DXC Team"
+requires_root: true
+category: security
+detect: "command -v auditctl || command -v semodule"
+checks:
+  - name: auditd_status
+    label: "Auditd Status"
+    type: command
+    command: "auditctl -s 2>&1 || echo 'auditctl not available'"
+
+  - name: audit_rules
+    label: "Audit Rules"
+    type: command
+    command: "auditctl -l 2>&1 || echo 'auditctl not available'"
+
+  - name: avc_denials
+    label: "Recent AVC Denials"
+    type: command
+    command: "ausearch -m avc,user_avc -ts recent 2>/dev/null | tail -50 | grep . || echo 'No recent AVC denials (or ausearch unavailable)'"
+    severity:
+      - pattern: "avc:.*denied"
+        status: warning
+
+  - name: selinux_modules
+    label: "SELinux Modules"
+    type: command
+    command: "semodule -l 2>/dev/null | head -50 | grep . || echo 'semodule not available'"
+
+  - name: selinux_booleans_on
+    label: "SELinux Booleans (on)"
+    type: command
+    command: "getsebool -a 2>/dev/null | grep ' on$' | head -40 | grep . || echo 'No SELinux booleans on (or getsebool unavailable)'"

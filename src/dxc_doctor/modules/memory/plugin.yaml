@@ -1,0 +1,35 @@
+name: memory
+label: "Memory"
+description: "Memory usage, swap, hugepages, NUMA topology, and OOM history."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: meminfo
+    label: "Memory Info"
+    type: file
+    path: "/proc/meminfo"
+
+  - name: swap_usage
+    label: "Swap Usage"
+    type: command
+    command: "swapon --show 2>/dev/null || cat /proc/swaps"
+
+  - name: hugepages
+    label: "Hugepages"
+    type: python
+    function: "collect_hugepages"
+
+  - name: oom_history
+    label: "OOM History"
+    type: command
+    command: "{ dmesg -T 2>/dev/null || journalctl -k --no-pager 2>/dev/null; } | grep -iE 'oom|out of memory' | tail -20 | grep . || echo 'No OOM events found (or kernel log not readable)'"
+    severity:
+      - pattern: "killed process"
+        status: warning
+
+  - name: numa_topology
+    label: "NUMA Topology"
+    type: command
+    command: "numactl --hardware 2>/dev/null || lscpu | grep -i numa || echo 'NUMA info not available'"

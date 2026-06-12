@@ -1,0 +1,34 @@
+name: packages
+label: "Packages"
+description: "Installed packages, pending updates, and repository list."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: software
+checks:
+  - name: package_manager
+    label: "Package Manager"
+    type: command
+    command: "for pm in dnf yum apt zypper; do if command -v $pm >/dev/null 2>&1; then echo $pm; exit 0; fi; done; echo unknown"
+
+  - name: installed_count
+    label: "Installed Packages Count"
+    type: command
+    command: "if command -v rpm >/dev/null 2>&1; then rpm -qa 2>/dev/null | wc -l; elif command -v dpkg >/dev/null 2>&1; then dpkg -l 2>/dev/null | grep -c '^ii'; else echo 'Cannot count packages'; fi"
+
+  - name: installed_packages
+    label: "Installed Packages"
+    type: command
+    command: "if command -v rpm >/dev/null 2>&1; then rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n' 2>/dev/null | sort | head -100; elif command -v dpkg-query >/dev/null 2>&1; then dpkg-query -W -f '${Package} ${Version}\n' 2>/dev/null | head -100; else echo 'Cannot list packages'; fi"
+
+  - name: pending_updates
+    label: "Pending Updates"
+    type: command
+    timeout: 60
+    command: "if command -v dnf >/dev/null 2>&1; then dnf -q check-update 2>/dev/null | head -30; true; elif command -v yum >/dev/null 2>&1; then yum -q check-update 2>/dev/null | head -30; true; elif command -v apt >/dev/null 2>&1; then apt list --upgradable 2>/dev/null | head -30; elif command -v zypper >/dev/null 2>&1; then zypper -q lu 2>/dev/null | head -30; else echo 'Cannot check updates'; fi"
+
+  - name: repositories
+    label: "Repositories"
+    type: command
+    timeout: 60
+    command: "if command -v dnf >/dev/null 2>&1; then dnf repolist 2>/dev/null; elif command -v yum >/dev/null 2>&1; then yum repolist 2>/dev/null; elif command -v apt-cache >/dev/null 2>&1; then apt-cache policy 2>/dev/null | head -60; elif command -v zypper >/dev/null 2>&1; then zypper repos 2>/dev/null; else echo 'Cannot list repos'; fi"

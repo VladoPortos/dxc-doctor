@@ -1,0 +1,52 @@
+name: users_accounts
+label: "Users / Accounts"
+description: "Logged-in users, UID 0 accounts, locked accounts, and password aging."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: security
+checks:
+  - name: logged_in_users
+    label: "Logged-In Users"
+    type: command
+    command: "w 2>&1"
+
+  - name: uid_zero_accounts
+    label: "UID 0 Accounts"
+    type: command
+    command: "awk -F: '$3==0 {print $1}' /etc/passwd"
+    severity:
+      - pattern: "^root$"
+        status: ok
+      - pattern: "."
+        status: warning
+
+  - name: account_status
+    label: "Account Status (locked / no password)"
+    type: python
+    function: "collect_account_status"
+    severity:
+      - pattern: "NO PASSWORD"
+        status: error
+      - pattern: "shadow not readable"
+        status: warning
+
+  - name: password_aging
+    label: "Password Aging"
+    type: python
+    function: "collect_password_aging"
+    severity:
+      - pattern: "EXPIRED"
+        status: warning
+      - pattern: "shadow not readable"
+        status: warning
+
+  - name: sudo_groups
+    label: "Sudo Groups"
+    type: command
+    command: "getent group sudo wheel admin adm 2>/dev/null | grep . || echo 'No sudo-style groups found'"
+
+  - name: recent_account_changes
+    label: "Account File Timestamps"
+    type: command
+    command: "ls -lt /etc/passwd /etc/shadow /etc/group /etc/gshadow 2>/dev/null"

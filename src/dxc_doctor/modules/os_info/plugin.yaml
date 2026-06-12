@@ -1,0 +1,47 @@
+name: os_info
+label: "OS Information"
+description: "Collect OS version, kernel, hostname, uptime, CPU, memory, disk, and network info."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: kernel_version
+    label: "Kernel Version"
+    type: command
+    command: "uname -r"
+
+  - name: os_release
+    label: "OS Release"
+    type: file
+    path: "/etc/os-release"
+
+  - name: hostname
+    label: "Hostname"
+    type: command
+    command: "hostname -f 2>/dev/null || hostname"
+
+  - name: uptime
+    label: "Uptime"
+    type: command
+    command: "uptime"
+
+  - name: cpu_info
+    label: "CPU Information"
+    type: python
+    function: "collect_cpu"
+
+  - name: memory_info
+    label: "Memory Information"
+    type: python
+    function: "collect_memory"
+
+  - name: disk_info
+    label: "Disk Usage"
+    type: command
+    command: "df -h"
+
+  - name: network_interfaces
+    label: "Network Interfaces"
+    type: command
+    command: "ip -br addr 2>/dev/null || ifconfig -a 2>/dev/null || echo 'No network tools available'"

@@ -1,0 +1,46 @@
+name: network
+label: "Network"
+description: "Routes, DNS, firewall rules, listening ports, and connectivity."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: network
+checks:
+  - name: interfaces
+    label: "Network Interfaces"
+    type: command
+    command: "ip -br addr 2>/dev/null || ifconfig -a 2>/dev/null || echo 'No network tools'"
+
+  - name: routes
+    label: "Routing Table"
+    type: command
+    command: "ip route 2>/dev/null || netstat -rn 2>/dev/null"
+
+  - name: dns_config
+    label: "DNS Configuration"
+    type: file
+    path: "/etc/resolv.conf"
+
+  - name: listening_ports
+    label: "Listening Ports"
+    type: command
+    command: "ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null"
+
+  - name: firewall_rules
+    label: "Firewall Rules"
+    type: command
+    command: "iptables -L -n 2>&1 || nft list ruleset 2>&1 || echo 'No firewall tools available'"
+
+  - name: connectivity
+    label: "Connectivity Check"
+    type: python
+    function: "check_connectivity"
+    timeout: 45
+    severity:
+      - pattern: "FAIL:"
+        status: warning
+
+  - name: interface_stats
+    label: "Interface Statistics"
+    type: python
+    function: "collect_interface_stats"

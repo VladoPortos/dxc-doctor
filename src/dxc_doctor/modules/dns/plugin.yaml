@@ -1,0 +1,31 @@
+name: dns
+label: "DNS"
+description: "DNS configuration, resolver settings, and resolution tests."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: network
+checks:
+  - name: resolv_conf
+    label: "Resolv Configuration"
+    type: file
+    path: "/etc/resolv.conf"
+
+  - name: nsswitch
+    label: "NSSwitch Configuration"
+    type: file
+    path: "/etc/nsswitch.conf"
+
+  - name: resolve_test
+    label: "DNS Resolution Test"
+    type: python
+    function: "resolve_test"
+    timeout: 45
+    severity:
+      - pattern: "FAIL:"
+        status: warning
+
+  - name: dig_test
+    label: "DNS Lookup Test"
+    type: command
+    command: "dig +short google.com A 2>/dev/null || nslookup google.com 2>/dev/null || echo 'No DNS tools'"

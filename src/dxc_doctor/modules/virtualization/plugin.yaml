@@ -1,0 +1,48 @@
+name: virtualization
+label: "Virtualization"
+description: "Virtualization platform, VMware tools, QEMU guest agent, and cloud-init."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: virt_type
+    label: "Virtualization Type"
+    type: command
+    command: "systemd-detect-virt 2>/dev/null || echo 'none detected (or systemd-detect-virt unavailable)'"
+
+  - name: dmi_platform
+    label: "Platform (DMI)"
+    type: command
+    command: "cat /sys/class/dmi/id/sys_vendor /sys/class/dmi/id/product_name 2>/dev/null | paste -sd ' ' - | grep . || echo 'DMI info not readable'"
+
+  - name: hypervisor_flag
+    label: "Hypervisor CPU Flag"
+    type: command
+    command: "grep -q hypervisor /proc/cpuinfo && echo 'hypervisor flag present (running virtualized)' || echo 'no hypervisor flag (likely bare metal)'"
+
+  - name: vmware_tools
+    label: "VMware Tools"
+    type: command
+    command: |-
+      if command -v vmware-toolbox-cmd >/dev/null 2>&1; then
+        echo "version:  $(vmware-toolbox-cmd -v 2>&1)"
+        echo "timesync: $(vmware-toolbox-cmd timesync status 2>&1)"
+      else
+        echo 'open-vm-tools not installed'
+      fi
+
+  - name: vmtoolsd_service
+    label: "vmtoolsd Service"
+    type: command
+    command: "systemctl is-active vmtoolsd 2>/dev/null || echo 'vmtoolsd not active or not present'"
+
+  - name: qemu_guest_agent
+    label: "QEMU Guest Agent"
+    type: command
+    command: "systemctl is-active qemu-guest-agent 2>/dev/null || echo 'qemu-guest-agent not active or not present'"
+
+  - name: cloud_init_status
+    label: "Cloud-Init Status"
+    type: command
+    command: "if command -v cloud-init >/dev/null 2>&1; then cloud-init status 2>&1; true; else echo 'cloud-init not installed'; fi"

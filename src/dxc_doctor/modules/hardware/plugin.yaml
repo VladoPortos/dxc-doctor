@@ -1,0 +1,38 @@
+name: hardware
+label: "Hardware (DMI)"
+description: "System/BIOS/DIMM inventory via dmidecode, PCI and USB devices (requires root)."
+version: "1.0"
+author: "DXC Team"
+requires_root: true
+category: hardware
+detect: "command -v dmidecode"
+checks:
+  - name: dmi_system
+    label: "System Info (DMI)"
+    type: command
+    command: "dmidecode -t system 2>&1 | head -25"
+
+  - name: dmi_bios
+    label: "BIOS Info (DMI)"
+    type: command
+    command: "dmidecode -t bios 2>&1 | head -25"
+
+  - name: memory_dimms
+    label: "Memory DIMMs"
+    type: command
+    command: "dmidecode -t memory 2>&1 | grep -E 'Size|Speed|Manufacturer|Locator|Form Factor|Type:' | grep . || echo 'No DIMM info available'"
+
+  - name: cpu_details
+    label: "CPU Details"
+    type: command
+    command: "lscpu 2>&1"
+
+  - name: pci_devices
+    label: "PCI Devices"
+    type: command
+    command: "lspci 2>/dev/null | grep . || echo 'lspci not available'"
+
+  - name: usb_devices
+    label: "USB Devices"
+    type: command
+    command: "lsusb 2>/dev/null | grep . || echo 'lsusb not available'"

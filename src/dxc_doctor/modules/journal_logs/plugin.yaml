@@ -1,0 +1,37 @@
+name: journal_logs
+label: "Journal / Logs"
+description: "Journal errors for current and previous boot, log disk usage."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+detect: "command -v journalctl || test -d /var/log"
+checks:
+  - name: boot_errors
+    label: "Errors This Boot"
+    type: command
+    command: "journalctl -p err -b --no-pager -n 100 2>/dev/null | grep . || echo 'No errors this boot (or journalctl unavailable)'"
+    # Collected log lines must not trip the global text heuristics.
+    severity: []
+
+  - name: previous_boot_errors
+    label: "Errors Previous Boot"
+    type: command
+    command: "journalctl -p err -b -1 --no-pager -n 50 2>/dev/null | grep . || echo 'No previous-boot journal (journal may not be persistent)'"
+    severity: []
+
+  - name: journal_disk_usage
+    label: "Journal Disk Usage"
+    type: command
+    command: "journalctl --disk-usage 2>&1 || echo 'journalctl not available'"
+
+  - name: var_log_usage
+    label: "/var/log Usage"
+    type: command
+    command: "du -sh /var/log 2>/dev/null || echo '/var/log not readable'"
+
+  - name: largest_logs
+    label: "Largest Log Files"
+    type: command
+    timeout: 60
+    command: "du -ah /var/log 2>/dev/null | sort -rh | head -15 | grep . || echo '/var/log not readable'"

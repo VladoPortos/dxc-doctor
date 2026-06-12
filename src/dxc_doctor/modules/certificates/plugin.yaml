@@ -1,0 +1,18 @@
+name: certificates
+label: "Certificates"
+description: "Check TLS certificate expiry and details."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: security
+detect: "command -v openssl"
+checks:
+  - name: system_certs
+    label: "System CA Certificates"
+    type: command
+    command: "ls /etc/pki/tls/certs/ 2>/dev/null || ls /etc/ssl/certs/ 2>/dev/null | head -20 || echo 'No system certs found'"
+
+  - name: cert_expiry
+    label: "Certificate Expiry Check"
+    type: python
+    function: "check_cert_expiry"

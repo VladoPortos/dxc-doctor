@@ -1,0 +1,42 @@
+name: security
+label: "Security"
+description: "SELinux/AppArmor status, SSH config, sudoers, and password policy."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: security
+checks:
+  - name: selinux_status
+    label: "SELinux Status"
+    type: command
+    command: "getenforce 2>/dev/null || sestatus 2>/dev/null || echo 'SELinux not available'"
+
+  - name: apparmor_status
+    label: "AppArmor Status"
+    type: command
+    command: "aa-status 2>/dev/null </dev/null || cat /sys/module/apparmor/parameters/enabled 2>/dev/null || echo 'AppArmor not available'"
+
+  - name: ssh_config
+    label: "SSH Config"
+    type: command
+    command: "cat /etc/ssh/sshd_config 2>/dev/null | grep -vE '^#|^$' || echo 'SSH config not readable'"
+
+  - name: sudoers
+    label: "Sudoers Summary"
+    type: command
+    command: "sudo -n -l 2>&1 || echo 'Sudoers not readable (requires password)'"
+
+  - name: password_policy
+    label: "Password Policy"
+    type: command
+    command: "cat /etc/login.defs 2>/dev/null | grep -E '^PASS_' || echo 'No password policy found'"
+
+  - name: listening_suid
+    label: "SUID Binaries"
+    type: command
+    command: "find /usr/bin /usr/sbin /bin /sbin -perm -4000 -type f 2>/dev/null | head -30 || echo 'Cannot scan'"
+
+  - name: last_logins
+    label: "Last Logins"
+    type: command
+    command: "last -n 10 2>&1 || echo 'last not available'"

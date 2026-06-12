@@ -1,0 +1,33 @@
+name: podman
+label: "Podman"
+description: "Podman container runtime info, images, and running containers."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: containers
+detect: "podman info >/dev/null 2>&1"
+checks:
+  - name: podman_version
+    label: "Podman Version"
+    type: command
+    command: "podman version 2>&1"
+
+  - name: podman_info
+    label: "Podman Info"
+    type: command
+    command: "podman info 2>&1"
+
+  - name: podman_containers
+    label: "Running Containers"
+    type: command
+    command: "podman ps --format 'table {{.Names}}\\t{{.Image}}\\t{{.Status}}' 2>&1"
+
+  - name: podman_images
+    label: "Podman Images"
+    type: command
+    command: "podman images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}' 2>&1"
+
+  - name: podman_disk_usage
+    label: "Podman Disk Usage"
+    type: command
+    command: "podman system df 2>&1"

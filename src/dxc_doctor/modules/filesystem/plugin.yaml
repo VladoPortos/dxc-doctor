@@ -1,0 +1,37 @@
+name: filesystem
+label: "Filesystem"
+description: "Mount points, disk usage, inode usage, and filesystem health."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: storage
+checks:
+  - name: mounts
+    label: "Mounts"
+    type: command
+    command: "mount -l"
+
+  - name: fstab
+    label: "Fstab"
+    type: file
+    path: "/etc/fstab"
+
+  - name: disk_usage
+    label: "Disk Usage"
+    type: command
+    command: "df -hT"
+
+  - name: inode_usage
+    label: "Inode Usage"
+    type: command
+    command: "df -i"
+
+  - name: readonly_mounts
+    label: "Read-Only Mounts"
+    type: python
+    function: "check_readonly_mounts"
+
+  - name: stale_mounts
+    label: "Stale Mounts"
+    type: python
+    function: "check_stale_mounts"

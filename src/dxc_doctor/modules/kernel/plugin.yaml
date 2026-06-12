@@ -1,0 +1,40 @@
+name: kernel
+label: "Kernel"
+description: "Kernel version, modules, sysctl settings, tainted flags, and dmesg errors."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: kernel_uname
+    label: "Kernel Version"
+    type: command
+    command: "uname -a"
+
+  - name: kernel_modules
+    label: "Loaded Modules"
+    type: command
+    command: "lsmod"
+
+  - name: sysctl_key_values
+    label: "Key Sysctl Values"
+    type: python
+    function: "collect_sysctl_values"
+
+  - name: tainted_flags
+    label: "Tainted Flags"
+    type: python
+    function: "decode_tainted_flags"
+
+  - name: kernel_cmdline
+    label: "Kernel Command Line"
+    type: file
+    path: "/proc/cmdline"
+
+  - name: dmesg_errors
+    label: "Dmesg Errors"
+    type: command
+    command: "{ dmesg -T --level=err,crit,alert,emerg 2>/dev/null || dmesg 2>/dev/null | grep -iE 'error|critical|alert|emerg'; } | tail -30 | grep . || echo 'No kernel errors found (or dmesg restricted)'"
+    # Collected kernel error text must not be re-classified by the global
+    # text heuristics — an empty severity list means exit-code-only.
+    severity: []

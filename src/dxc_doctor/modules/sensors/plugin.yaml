@@ -1,0 +1,18 @@
+name: sensors
+label: "Sensors"
+description: "Temperature, fan speed, and voltage readings."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: hardware
+detect: "command -v sensors"
+checks:
+  - name: all_sensors
+    label: "All Sensors"
+    type: command
+    command: "sensors 2>&1"
+
+  - name: thermal_zones
+    label: "Thermal Zones"
+    type: command
+    command: "for z in /sys/class/thermal/thermal_zone*/; do echo \"$(basename $z): $(cat ${z}type 2>/dev/null) = $(cat ${z}temp 2>/dev/null | awk '{printf \"%.1f C\", $1/1000}')\" 2>/dev/null; done || echo 'No thermal zones'"

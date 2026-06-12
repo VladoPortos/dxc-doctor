@@ -1,0 +1,35 @@
+name: cron
+label: "Cron"
+description: "System and user crontabs, cron directories, and at jobs."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: system
+checks:
+  - name: system_crontab
+    label: "System Crontab"
+    type: file
+    path: "/etc/crontab"
+
+  - name: cron_dirs
+    label: "Cron Directories"
+    type: command
+    command: |-
+      for d in /etc/cron.d /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly; do
+        [ -d "$d" ] && { echo "== $d =="; ls -la "$d" 2>/dev/null; }
+      done | grep . || echo 'No cron directories found'
+
+  - name: user_crontabs
+    label: "User Crontabs"
+    type: python
+    function: "collect_user_crontabs"
+
+  - name: at_jobs
+    label: "At Jobs"
+    type: command
+    command: "atq 2>/dev/null | grep . || echo 'No at jobs (or atd not installed)'"
+
+  - name: anacrontab
+    label: "Anacrontab"
+    type: file
+    path: "/etc/anacrontab"

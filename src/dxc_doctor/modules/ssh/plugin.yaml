@@ -1,0 +1,33 @@
+name: ssh
+label: "SSH"
+description: "SSH daemon configuration, host keys, and security audit."
+version: "1.0"
+author: "DXC Team"
+requires_root: false
+category: security
+detect: "command -v sshd || test -f /etc/ssh/sshd_config"
+checks:
+  - name: sshd_config
+    label: "SSHD Configuration"
+    type: file
+    path: "/etc/ssh/sshd_config"
+
+  - name: sshd_status
+    label: "SSHD Status"
+    type: command
+    command: "systemctl status sshd 2>/dev/null || service sshd status 2>/dev/null || echo 'sshd status not available'"
+
+  - name: ssh_host_keys
+    label: "SSH Host Keys"
+    type: command
+    command: "ls -la /etc/ssh/ssh_host_*_key.pub 2>/dev/null || echo 'No host keys found'"
+
+  - name: ssh_audit
+    label: "SSH Security Audit"
+    type: python
+    function: "audit_sshd_config"
+
+  - name: authorized_keys
+    label: "Authorized Keys"
+    type: python
+    function: "list_authorized_keys"
